@@ -1,0 +1,29 @@
+% Housekeeping
+clc; 
+clear all; 
+
+%% Import the image
+img = imread('Sample_1.jpg'); 
+img = imresize(img,0.5); 
+
+%% Low-level image processing
+img_gray = rgb2gray(img); 
+img_BW = imbinarize(img_gray); 
+img_BW = imcomplement(img_BW); 
+
+BW2_1 = bwmorph(img_BW,'remove');
+% BW2 = imcomplement(BW2);
+figure; 
+imshow(BW2_1)
+% BW2_1 = bwmorph(BW2,'tophat', 10);
+% BW2 = BW2 - imcomplement(BW2_1); 
+% BW2 = bwmorph(BW2,'thicken');
+
+BW2_2 = bwmorph(img_BW,'branchpoints');
+% BW2 = imcomplement(BW2);
+figure; 
+imshow(BW2_2)
+
+BW2 = BW2_2+ imcomplement(BW2_1); 
+figure; 
+imshow(BW2)

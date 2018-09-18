@@ -3,7 +3,7 @@ clc;
 clear all; 
 
 % Import the image
-img = imread('Sample_2.jpg'); 
+img = imread('Sample_1.jpg'); 
 img = imresize(img,0.5); 
 
 % Low-level image processing
@@ -16,10 +16,10 @@ img_BW = imcomplement(img_BW);
 % Boundary detection
 % img_edge = edge(img_BW);
 img_edge = bwmorph(img_BW,'bothat');
-
+img_edge = bwmorph(img_edge,'tophat');
 [H,theta,rho] = hough(img_edge);
-P = houghpeaks(H,15,'threshold',ceil(0.5*max(H(:))));
-lines = houghlines(img_edge,theta,rho,P,'FillGap',2,'MinLength',10);
+P = houghpeaks(H,10,'threshold',ceil(0.1*max(H(:))));
+lines = houghlines(img_edge,theta,rho,P,'FillGap',10,'MinLength',5);
 
 figure, imshow(img), hold on
 max_len = 0;
