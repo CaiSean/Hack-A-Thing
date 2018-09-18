@@ -3,7 +3,7 @@ clc;
 clear all; 
 
 %% Import the image
-img = imread('Sample_2.jpg'); 
+img = imread('Sample_1.jpg'); 
 img = imresize(img,0.5); 
 
 %% Low-level image processing
@@ -16,6 +16,8 @@ img_BW = imcomplement(img_BW);
 %% Boundary detection
 img_edge = edge(img_BW);
 B = bwboundaries(img_edge, 'holes');
+figure; 
+imshow(img_edge)
 
 for i = 1:length(B)
     cell_length(i, :) = length(B{i}); 
