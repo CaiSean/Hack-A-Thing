@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
+#include <Servo.h>
 
 Adafruit_MotorShield AFMS1 = Adafruit_MotorShield();
 Adafruit_MotorShield AFMS2 = Adafruit_MotorShield(); 
@@ -8,6 +9,7 @@ Adafruit_MotorShield AFMS2 = Adafruit_MotorShield();
 Adafruit_DCMotor *vacMotor = AFMS1.getMotor(1); 
 // initiate Stepper motor at port 2 (M3 and M4)
 Adafruit_StepperMotor *stepperMotor = AFMS2.getStepper(200, 2); 
+Servo myServo;  // create a servo object
 
 int stepper_pow_switch = 5; 
 int stepper_dir_switch = 2; 
@@ -29,7 +31,10 @@ void setup() {
   vacMotor->run(RELEASE);
 
   // turn on stepper motor
-  stepperMotor->setSpeed(10);  // 10 rpm 
+  stepperMotor->setSpeed(100);  // 10 rpm 
+
+  // initiate servo motor
+  myServo.attach(7); // attaches the servo on pin 7 to the servo object
 
   pinMode(ledPin, OUTPUT);  // declare LED as output
   pinMode(stepper_pow_switch, INPUT);    // declare switch as input
@@ -41,6 +46,7 @@ void setup() {
 void loop() {
   stepper_motor();
   vacuum_motor(); 
+  //vacuum_suction(vacuum_motor());
 }
 
 void stepper_motor()
@@ -67,13 +73,13 @@ void stepper_motor()
       if (val_step_dir_switch == HIGH)
       {
         Serial.println("Stepper motor FORWARD");
-        stepperMotor->step(3, FORWARD, DOUBLE); 
+        stepperMotor->step(10, FORWARD, DOUBLE); 
         break; 
       }
       else
       {
         Serial.println("Stepper motor BACKWARD");
-        stepperMotor->step(3, BACKWARD, DOUBLE); 
+        stepperMotor->step(10, BACKWARD, DOUBLE); 
         break; 
       }
     }
@@ -88,24 +94,26 @@ void vacuum_motor()
   if (val_vac_switch == HIGH)
   {
     Serial.println("Vacuum Switch OFF"); 
-    digitalWrite(ledPin, LOW);  // turn LED OFF
+    myServo.write(150);
+    // digitalWrite(ledPin, LOW);  // turn LED OFF
       while (val_vac_switch == HIGH)
-      {
-        //vac_release();  
+      { 
         vacMotor->run(RELEASE); 
-        break; 
+        break;
       }
   }
   else
   {
     Serial.println("Vacuum Switch ON");
-      digitalWrite(ledPin, HIGH);  // turn LED ON
+    myServo.write(120);
+      // digitalWrite(ledPin, HIGH);  // turn LED ON
       while (val_vac_switch == LOW)
       {
-        
         vacMotor->run(FORWARD);
+        
         break; 
       }
   }
 }
+
 
