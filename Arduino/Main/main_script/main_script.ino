@@ -31,7 +31,7 @@ void setup() {
   vacMotor->run(RELEASE);
 
   // turn on stepper motor
-  stepperMotor->setSpeed(100);  // 10 rpm 
+  stepperMotor->setSpeed(120);  // 10 rpm 
 
   // initiate servo motor
   myServo.attach(7); // attaches the servo on pin 7 to the servo object
@@ -73,13 +73,13 @@ void stepper_motor()
       if (val_step_dir_switch == HIGH)
       {
         Serial.println("Stepper motor FORWARD");
-        stepperMotor->step(10, FORWARD, DOUBLE); 
+        stepperMotor->step(15, FORWARD, SINGLE); 
         break; 
       }
       else
       {
         Serial.println("Stepper motor BACKWARD");
-        stepperMotor->step(10, BACKWARD, DOUBLE); 
+        stepperMotor->step(15, BACKWARD, SINGLE); 
         break; 
       }
     }
