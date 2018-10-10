@@ -35,44 +35,14 @@ void setup() {
 
   //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
   
-  myMotor->setSpeed(10);  // 10 rpm   
+  myMotor->setSpeed(1200);  // 10 rpm   
   pinMode(ledPin, OUTPUT);  // declare LED as output
   pinMode(inPin, INPUT);    // declare pushbutton as input
   pinMode(inPin2, INPUT);    // declare pushbutton as input
+  myMotor->step(1000, BACKWARD, SINGLE); 
 }
 
 void loop() {
-      
-  val = digitalRead(inPin);  // read input value
-  val2 = digitalRead(inPin2); 
-  
-  if (val == HIGH) // check if the input is HIGH (button released)
-  {         
-      Serial.println("Button released");
-      digitalWrite(ledPin, LOW);  // turn LED OFF
-      while (val == HIGH)
-      {
-        myMotor->release();  
-        break; 
-      }
-  } 
-  else
-  {
-      Serial.println("Button Pushed");
-      digitalWrite(ledPin, HIGH);  // turn LED ON
-      while (val == LOW)
-      {
-        if (val2 == HIGH)
-        {
-          myMotor->step(1, FORWARD, DOUBLE); 
-          break; 
-        }
-        else
-        {
-          myMotor->step(1, BACKWARD, DOUBLE); 
-          break; 
-        }
-      }
-  }
+
 
 }

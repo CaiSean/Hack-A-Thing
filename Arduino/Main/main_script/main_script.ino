@@ -14,11 +14,13 @@ Servo myServo;  // create a servo object
 int stepper_pow_switch = 5; 
 int stepper_dir_switch = 2; 
 int vac_switch = 3; 
+int PB_speed = 8; 
 int ledPin = 13; // choose the pin for the LED
 
 int val_vac_switch = 0; 
 int val_step_pow_switch = 0; 
 int val_step_dir_switch = 0; 
+int val_PB = 0; 
 
 void setup() {
   Serial.begin(9600);
@@ -31,21 +33,27 @@ void setup() {
   vacMotor->run(RELEASE);
 
   // turn on stepper motor
-  stepperMotor->setSpeed(120);  // 10 rpm 
+  stepperMotor->setSpeed(1200);  // 10 rpm 
 
   // initiate servo motor
   myServo.attach(7); // attaches the servo on pin 7 to the servo object
+  myServo.write(0);
+  delay(1000);
+  myServo.write(150);
+  
 
   pinMode(ledPin, OUTPUT);  // declare LED as output
   pinMode(stepper_pow_switch, INPUT);    // declare switch as input
   pinMode(stepper_dir_switch, INPUT);    // declare switch as input
   pinMode(vac_switch, INPUT);    // declare switch as input
+  pinMode(PB_speed, INPUT); 
   delay(1000); 
 }
 
 void loop() {
   stepper_motor();
   vacuum_motor(); 
+  //speedup_rot();
   //vacuum_suction(vacuum_motor());
 }
 
@@ -73,13 +81,13 @@ void stepper_motor()
       if (val_step_dir_switch == HIGH)
       {
         Serial.println("Stepper motor FORWARD");
-        stepperMotor->step(15, FORWARD, SINGLE); 
+        stepperMotor->step(30, FORWARD, SINGLE); 
         break; 
       }
       else
       {
         Serial.println("Stepper motor BACKWARD");
-        stepperMotor->step(15, BACKWARD, SINGLE); 
+        stepperMotor->step(30, BACKWARD, SINGLE); 
         break; 
       }
     }
@@ -89,7 +97,7 @@ void stepper_motor()
 
 void vacuum_motor()
 {
-    val_vac_switch = digitalRead(vac_switch);  // read input value
+   val_vac_switch = digitalRead(vac_switch);  // read input value
 
   if (val_vac_switch == HIGH)
   {
@@ -99,13 +107,14 @@ void vacuum_motor()
       while (val_vac_switch == HIGH)
       { 
         vacMotor->run(RELEASE); 
+        
         break;
       }
   }
   else
   {
     Serial.println("Vacuum Switch ON");
-    myServo.write(120);
+    myServo.write(125);
       // digitalWrite(ledPin, HIGH);  // turn LED ON
       while (val_vac_switch == LOW)
       {
@@ -116,4 +125,32 @@ void vacuum_motor()
   }
 }
 
+//void speedup_rot()
+//{
+//  val_PB = digitalRead(PB_speed); 
+//  val_step_dir_switch = digitalRead(stepper_dir_switch);  // read input value
+//  val_step_pow_switch = digitalRead(stepper_pow_switch);  // read input value
+//
+//  while (val_step_pow_switch == HIGH)
+//  {
+//    break; 
+//  }
+//  
+//  while (val_PB == LOW)
+//  {
+//    stepperMotor->setSpeed(300); 
+//    
+//    if (val_step_dir_switch == HIGH)
+//    {
+//      stepperMotor->step(30, FORWARD, SINGLE); 
+//    }
+//    else 
+//    {
+//      stepperMotor->step(30, BACKWARD, SINGLE); 
+//    }
+//  }
+//  
+//  stepperMotor->setSpeed(120); 
+//}
+//
 
