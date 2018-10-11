@@ -28,7 +28,7 @@ int inPin = 3;
 int val = 0; 
 
 void setup() {
-  myServo.attach(7); // attaches the servo on pin 9 to the servo object
+  myServo.attach(9); // attaches the servo on pin 9 to the servo object
   Serial.begin(9600); // open a serial connection to your computer
   pinMode(inPin, INPUT); 
 }
