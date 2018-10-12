@@ -16,6 +16,7 @@ int main_switch = 2;
 int stepper_dir_switch = 3; 
 int vac_switch = 4; 
 int push_button = 5; 
+int photoResistorPin = 1; 
 
 // OUTPUT Hardware
 int ledPin = 13; 
@@ -23,6 +24,7 @@ int ledPin = 13;
 int val_main_switch = 0; 
 int val_step_dir_switch = 0; 
 int val_vac_switch = 0; 
+int lightLevel; 
 
 void setup() {
   Serial.begin(9600);
@@ -62,7 +64,7 @@ void loop() {
 
 void stepper_motor()
 {
-  stepperMotor->setSpeed(1200);
+  stepperMotor->setSpeed(2000);
   
   val_main_switch = digitalRead(main_switch);  // read input value
   val_step_dir_switch = digitalRead(stepper_dir_switch);  // read input value
@@ -86,13 +88,13 @@ void stepper_motor()
       if (val_step_dir_switch == HIGH)
       {
         Serial.println("Stepper motor FORWARD");
-        stepperMotor->step(30, FORWARD, SINGLE); 
+        stepperMotor->step(50, FORWARD, SINGLE); 
         break; 
       }
       else
       {
         Serial.println("Stepper motor BACKWARD");
-        stepperMotor->step(30, BACKWARD, SINGLE); 
+        stepperMotor->step(50, BACKWARD, SINGLE); 
         break; 
       }
     }
@@ -111,38 +113,54 @@ void auto_feeding()
     digitalWrite(ledPin, HIGH);
     
     // Part of Sticker 1 
-    stepperMotor->step(3258, BACKWARD, DOUBLE); 
-    stepperMotor->step(250*1.5, BACKWARD, DOUBLE); // move 2 mm front
-    delay(2000);
-    
+    // stepperMotor->step(3258, BACKWARD, DOUBLE); 
+//    myServo.write(128);
+//    vacMotor->run(FORWARD);
+//    stepperMotor->step(250*1.5, BACKWARD, DOUBLE); // move 2 mm front
+//    // check_sticker(); 
+//    delay(10000);
+//    vacMotor->run(RELEASE);
+//    myServo.write(160);
     // Sticker 2
-    stepperMotor->step(3340, BACKWARD, DOUBLE); 
+    myServo.write(128);
+    vacMotor->run(FORWARD);
+    stepperMotor->step(3340, BACKWARD, DOUBLE);
+    // check_sticker(); 
+    delay(12000);
+     
+    check_sticker();
     //delay(10000);
     delay(2000);
     
     // Sticker 3
-    // Lift time: 27.20 seconds
     stepperMotor->step(7264, BACKWARD, DOUBLE);
+    check_sticker();
     //delay(10000); 
     delay(2000);
     
     // Sticker 4
     stepperMotor->step(6066-302, BACKWARD, DOUBLE); 
+    check_sticker();
     //delay(10000); 
     delay(2000);
     
     // Sticker 5
     stepperMotor->step(2822, BACKWARD, DOUBLE); 
+    check_sticker();
     //delay(10000);
     delay(2000);
     
     // Sticker 6
     stepperMotor->step(3462, BACKWARD, DOUBLE); 
+    check_sticker();
     //delay(10000); 
     delay(2000);
     
     // Sticker 7
     stepperMotor->step(6636-3000, BACKWARD, DOUBLE); 
+    check_sticker();
+    vacMotor->run(RELEASE);
+    myServo.write(160);
     //delay(10000);
     delay(2000);
     
@@ -184,5 +202,28 @@ void vacuum_motor()
       break; 
     }
   }
+}
+
+void check_sticker()
+{
+  lightLevel = analogRead(photoResistorPin); 
+  lightLevel = map(lightLevel, 0, 1023, 0, 255);
+  lightLevel = constrain(lightLevel, 0, 255);
+
+  int threshold  = 170; 
+  
+  if (lightLevel > threshold)
+  {
+    for (int i = 0; i < 3; i++)
+    {
+      stepperMotor->step(400, BACKWARD, DOUBLE); 
+      stepperMotor->step(400, FORWARD, DOUBLE); 
+    }
+  }
+  else 
+  {
+    stepperMotor->release();  
+  }
+  
 }
 
