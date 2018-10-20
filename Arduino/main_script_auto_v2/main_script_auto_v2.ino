@@ -25,7 +25,11 @@ int val_main_switch = 0;
 int val_step_dir_switch = 0; 
 int val_vac_switch = 0; 
 int lightLevel; 
-int step_length[] = {3340, 7264, 6066-302, 2822, 3462, 6636-3000}; 
+int flag = 0; 
+int step_length[] = {5705+150, 3300, 7220+150, 6016-100, 2812, 3412, 4000};
+
+void check_robot_pos(); 
+void vacuum_motor(); 
 
 void setup() {
   Serial.begin(9600);
@@ -58,7 +62,7 @@ void setup() {
 }
 
 void loop() {
-  stepper_motor(); 
+  stepper_motor();
   auto_feeding(); 
   vacuum_motor(); 
 }
@@ -72,7 +76,7 @@ void stepper_motor()
   
   if (val_main_switch == HIGH) // check if the input is HIGH (switch OFF)
   {         
-    Serial.println("Stepper power switch OFF");
+    // Serial.println("Stepper power switch OFF");
     digitalWrite(ledPin, LOW);  // turn LED OFF
     while (val_main_switch == HIGH)
     {
@@ -82,20 +86,20 @@ void stepper_motor()
   } 
   else
   {
-    Serial.println("Stepper power switch ON");
+    // Serial.println("Stepper power switch ON");
     digitalWrite(ledPin, HIGH);  // turn LED ON
     while (val_main_switch == LOW)
     {
       if (val_step_dir_switch == HIGH)
       {
-        Serial.println("Stepper motor FORWARD");
-        stepperMotor->step(50, FORWARD, SINGLE); 
+        // Serial.println("Stepper motor FORWARD");
+        stepperMotor->step(50, FORWARD, DOUBLE); 
         break; 
       }
       else
       {
-        Serial.println("Stepper motor BACKWARD");
-        stepperMotor->step(50, BACKWARD, SINGLE); 
+        // Serial.println("Stepper motor BACKWARD");
+        stepperMotor->step(50, BACKWARD, DOUBLE); 
         break; 
       }
     }
@@ -104,70 +108,92 @@ void stepper_motor()
 
 void auto_feeding()
 {
-  stepperMotor->setSpeed(1200);
-  int PB_state = 0; 
-
+  int PB_state = LOW; 
   PB_state = digitalRead(push_button); 
 
   if (PB_state == HIGH)
   {
     digitalWrite(ledPin, HIGH);
     
-    // Part of Sticker 1 
-    // stepperMotor->step(3258, BACKWARD, DOUBLE); 
-//    myServo.write(128);
-//    vacMotor->run(FORWARD);
-//    stepperMotor->step(250*1.5, BACKWARD, DOUBLE); // move 2 mm front
-//    // check_sticker(); 
-//    delay(10000);
-//    vacMotor->run(RELEASE);
-//    myServo.write(160);
-    // Sticker 2
-    myServo.write(128);
-    vacMotor->run(FORWARD);
-    stepperMotor->step(3340, BACKWARD, DOUBLE);
-    // check_sticker(); 
-    delay(12000);
-     
-    check_sticker();
-    //delay(10000);
-    delay(2000);
-    
-    // Sticker 3
-    stepperMotor->step(7264, BACKWARD, DOUBLE);
-    check_sticker();
-    //delay(10000); 
-    delay(2000);
-    
-    // Sticker 4
-    stepperMotor->step(6066-302, BACKWARD, DOUBLE); 
-    check_sticker();
-    //delay(10000); 
-    delay(2000);
-    
-    // Sticker 5
-    stepperMotor->step(2822, BACKWARD, DOUBLE); 
-    check_sticker();
-    //delay(10000);
-    delay(2000);
-    
-    // Sticker 6
-    stepperMotor->step(3462, BACKWARD, DOUBLE); 
-    check_sticker();
-    //delay(10000); 
-    delay(2000);
-    
-    // Sticker 7
-    stepperMotor->step(6636-3000, BACKWARD, DOUBLE); 
-    check_sticker();
-    vacMotor->run(RELEASE);
-    myServo.write(160);
-    //delay(10000);
-    delay(2000);
-    
-    stepperMotor->release();
+    for (int i = 0; i < 7; i++)
+    {
+      Serial.println(i);
+      flag = 0; 
+      while (flag == 0)
+      {
+        check_robot_pos(); 
+      }
+      delay(100); 
+      
+      if (flag == 1)
+      {
+        myServo.write(120);
+        vacMotor->run(FORWARD);
+        
+        stepperMotor->setSpeed(800);
+        stepperMotor->step(500, BACKWARD, DOUBLE); 
+        stepperMotor->step(820, FORWARD, DOUBLE); 
+        // This will take 6.51 seconds
 
-    PB_state = LOW; 
+        if (i == 5)
+        {
+          stepperMotor->step(800, BACKWARD, DOUBLE); 
+          stepperMotor->step(800, FORWARD, DOUBLE); 
+          stepperMotor->step(800, BACKWARD, DOUBLE); 
+          stepperMotor->step(800, FORWARD, DOUBLE); 
+        }
+        // This takes 13 seconds
+        
+        stepperMotor->setSpeed(2000);
+        stepperMotor->step(step_length[i]+320, BACKWARD, DOUBLE);
+        Serial.println(step_length[i]);  
+         
+        if (i == 0)
+        {
+          delay(11730+6500); 
+          vacMotor->run(RELEASE);
+          myServo.write(160);
+        }
+        else if (i == 1)
+        {
+          delay(21690+6500); 
+          vacMotor->run(RELEASE);
+          myServo.write(160);
+        }
+        else if (i == 2)
+        {
+          delay(5790+6500); 
+          vacMotor->run(RELEASE);
+          myServo.write(160);
+        }
+        else if (i == 3)
+        {
+          delay(10800+6500); 
+          vacMotor->run(RELEASE);
+          myServo.write(160);
+        }
+        else if (i == 4)
+        {
+          delay(23630+6500); 
+          vacMotor->run(RELEASE);
+          myServo.write(160);
+        }
+        else if (i == 5)
+        {
+          delay(7700+6500); 
+          vacMotor->run(RELEASE);
+          myServo.write(160);
+        }
+        else if (i == 6)
+        {
+          delay(18670+6500); 
+          vacMotor->run(RELEASE);
+          myServo.write(160);
+        }
+      }
+      
+    }
+    PB_state = LOW;
   }
   else
   {
@@ -183,7 +209,7 @@ void vacuum_motor()
 
   if (val_vac_switch == HIGH)
   {
-    Serial.println("Vacuum Switch OFF"); 
+    // Serial.println("Vacuum Switch OFF"); 
     myServo.write(160);
    
     while (val_vac_switch == HIGH)
@@ -194,8 +220,8 @@ void vacuum_motor()
   }
   else
   {
-    Serial.println("Vacuum Switch ON");
-    myServo.write(128);
+    // Serial.println("Vacuum Switch ON");
+    myServo.write(120);
 
     while (val_vac_switch == LOW)
     {
@@ -205,26 +231,21 @@ void vacuum_motor()
   }
 }
 
-void check_sticker()
+void check_robot_pos()
 {
   lightLevel = analogRead(photoResistorPin); 
   lightLevel = map(lightLevel, 0, 1023, 0, 255);
   lightLevel = constrain(lightLevel, 0, 255);
 
-  int threshold  = 170; 
+  int threshold  = 120; 
   
-  if (lightLevel > threshold)
+  if (lightLevel < threshold)
   {
-    for (int i = 0; i < 3; i++)
-    {
-      stepperMotor->step(400, BACKWARD, DOUBLE); 
-      stepperMotor->step(400, FORWARD, DOUBLE); 
-    }
+    flag = 1; 
   }
   else 
   {
-    stepperMotor->release();  
+    flag = 0;   
   }
-  
 }
 
